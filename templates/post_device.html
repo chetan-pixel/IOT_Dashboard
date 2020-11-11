@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+<h1>
+    Your Devices Are Listed Here
+</h1>
+<table>
+<tr>
+    <th>Time</th>
+    <th>Current</th>
+    <th>Temperature</th>
+    <th>Voltage</th>
+</tr>
+
+{%for time,current,temperature,voltage in comb%}
+<tr>
+    <td>{{time}}</td>
+    <td>{{current}}</td>
+    <td>{{temperature}}</td>
+    <td>{{voltage}}</td>
+</tr>
+{%endfor%}
+</table>
+</body>
+</html>

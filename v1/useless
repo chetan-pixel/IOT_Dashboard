@@ -1,0 +1,70 @@
+def check_load_save(request):
+#     users_dict = database.child('users').shallow().get().val()
+#     # Getting Users List
+#     user_list = []
+#     for user in users_dict:
+#         user_list.append(user)
+#
+#     # Nested List For Saving Values
+#     for user in user_list:
+#         devices_dict = database.child('users').child(user).child('Devices').shallow().get().val()
+#         devices_list = []
+#         for device in devices_dict:
+#             devices_list.append(device)
+#         # print(devices_list)
+#         for device in devices_list:
+#             time = database.child('users').child(user).child('Devices').child(device).get().val()
+#             keys = []
+#             for key in time.keys():
+#                 keys.append(str(key))
+#             print(keys)
+#             try:
+#                 keys.remove('example')
+#             except:
+#                 pass
+#             time = json.dumps(time)
+#             # print(time)
+#             response = json.loads(time)
+#             for key in keys:
+#                 curr = response[key]['Values']['Current']
+#                 temp = response[key]['Values']['Temperature']
+#                 pd = response[key]['Values']['Voltage']
+#                 print(str(user) + "/" + str(device) + "/" + str(key) + "/Values/")
+#                 print("Current:"+str(curr)+"      Temperature:"+str(temp)+"      Voltage:"+str(pd))
+#                 save_data(user=user, device_no=device, time=key, current=curr, temperature=temp, voltage=pd)
+#                 database.child('users').child(user).child('Devices').child(device).child(key).remove()
+#     return render(request, 'welcome.html')
+#
+#
+# def save_data(user, device_no, time, current, temperature, voltage):
+#     dataToSave = data.objects.create(user=user, device_no=device_no, time=time, current=current, temperature=temperature, voltage=voltage)
+#     dataToSave.save()
+#
+#
+# def show_devices(request):
+#     uid = request.COOKIES['uid']
+#
+#     device_list = []
+#     for id  in data.objects.raw('SELECT id,device_no FROM `model_data` WHERE user="'+str(uid)+'"'):
+#         device_list.append(id.device_no)
+#     device_list = list(dict.fromkeys(device_list))
+#     print(uid)
+#     print(device_list)
+#     return render(request, "device_list.html", {'devices':device_list})
+#
+#
+# def post_device(request):
+#     uid = request.COOKIES['uid']
+#     deviceID = request.GET.get('z')
+#     print('SELECT * FROM `model_data` WHERE user="'+str(uid)+'" AND device_no="'+str(deviceID)+'"')
+#     time = []
+#     current = []
+#     temperature = []
+#     voltage = []
+#     for id in data.objects.raw('SELECT * FROM `model_data` WHERE user="'+str(uid)+'" AND device_no="'+str(deviceID)+'" ORDER BY id DESC'):
+#         time.append(id.time)
+#         current.append(id.current)
+#         temperature.append(id.temperature)
+#         voltage.append(id.voltage)
+#     comb_lis = zip(time, current, temperature, voltage)
+#     return render(request, "post_device.html", {'comb':comb_lis})
