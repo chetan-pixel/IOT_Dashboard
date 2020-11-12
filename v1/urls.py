@@ -40,6 +40,7 @@ urlpatterns = [
     url('ajax_update/', views.ajax_update , name='ajax_update'),
     path('index_login/', TemplateView.as_view(template_name="index_login.html")),
     path('index_dashboard/', TemplateView.as_view(template_name="index_dashboard.html"), name="index_dashboard"),
-    path('latest_data/', views.save_latest_data, name="noname")
+    path('latest_data/', views.save_latest_data, name="noname"),
+    url(r'^api/', views.filter_data, name="api"),
 ]
 

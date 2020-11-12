@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 import pyrebase
 from django.contrib import auth
 from model.models import data
-from django.template import RequestContext,response
+from django.template import RequestContext, response
 from django.shortcuts import render_to_response
 from django.http import JsonResponse
 import json
@@ -18,12 +18,14 @@ config = {
     'messagingSenderId': "82198444165",
     'appId': "1:82198444165:web:eb9e20a95d9fcaacd991ec",
     'measurementId': "G-E595RHEXVP"
-  }
+}
 
 firebase = pyrebase.initialize_app(config)
 
 authe = firebase.auth()
-database=firebase.database()
+database = firebase.database()
+
+
 def signIn(request):
     try:
         uid = request.COOKIES['uid']
@@ -31,42 +33,46 @@ def signIn(request):
         return render(request, "index_login.html")
     return redirect('/listdevices/')
 
+
 def postsign(request):
-    email=request.POST.get('email')
+    email = request.POST.get('email')
     passw = request.POST.get("pass")
+    remembr_me = request.POST.get("remember-me")
     try:
-        user = authe.sign_in_with_email_and_password(email,passw)
+        user = authe.sign_in_with_email_and_password(email, passw)
     except:
-        message="invalid credentials"
-        return render(request,"index_login.html",{"messg":message})
+        message = "invalid credentials"
+        return render(request, "index_login.html", {"messg": message})
     print(user['idToken'])
     print(user['localId'])
     # response = render_to_response( 'welcome.html', {"e": email})
-    response = redirect('/')
-    uid=user['localId']
-    response.set_cookie('uid', uid)
+    response = redirect("/")
+    uid = user['localId']
+    if not remembr_me:
+        response.set_cookie('uid', uid)
+    else:
+        response.set_cookie('uid', uid, 2592000)
     return response
 
 
 def logout(request):
-
-    return render(request,'signIn.html')
+    return render(request, 'signIn.html')
 
 
 def signUp(request):
+    return render(request, "signup.html")
 
-    return render(request,"signup.html")
+
 def postsignup(request):
-
-    name=request.POST.get('name')
-    email=request.POST.get('email')
-    passw=request.POST.get('pass')
+    name = request.POST.get('name')
+    email = request.POST.get('email')
+    passw = request.POST.get('pass')
     try:
-        user=authe.create_user_with_email_and_password(email,passw)
+        user = authe.create_user_with_email_and_password(email, passw)
         uid = user['localId']
     except:
-        message="Unable to create account try again"
-        return render(request,"signup.html",{"messg":message})
+        message = "Unable to create account try again"
+        return render(request, "signup.html", {"messg": message})
 
     data = {"name": name}
 
@@ -75,8 +81,6 @@ def postsignup(request):
 
 
 #############################################################################################################################################################################
-
-
 
 
 def list_devices(request):
@@ -108,7 +112,7 @@ def device_data(request):
     for key in keys:
         curr = response[key]['Current']
         temp = response[key]['Temperature']
-        pd   = response[key]['Voltage']
+        pd = response[key]['Voltage']
         # print("Current:" + str(curr) + "      Temperature:" + str(temp) + "      Voltage:" + str(pd))
         current.append(curr)
         temperature.append(temp)
@@ -139,7 +143,7 @@ def ajax_update(request):
         tim = response[key]['Time']
         curr = response[key]['Current']
         temp = response[key]['Temperature']
-        pd   = response[key]['Voltage']
+        pd = response[key]['Voltage']
         humi = response[key]['Humidity']
         # print("Current:" + str(curr) + "      Temperature:" + str(temp) + "      Voltage:" + str(pd))
         time.append(tim)
@@ -195,19 +199,36 @@ def save_latest_data(request):
                                   humidity=humi)
                         database.child('Data').child(device).child(key).remove()
             except:
-                    return HttpResponse("<h1>No data pending...</h1>")
+                return HttpResponse("<h1>No data pending...</h1>")
     return HttpResponse("<h1>Done....</h1>")
 
-from django.utils import timezone
+
 def save_data(user, device_no, time, current, temperature, voltage, humidity):
-    print(timezone.now())
     dataToSave = data.objects.create(
-                                     user=user,
-                                     device_no=device_no,
-                                     time=time,
-                                     current=current,
-                                     temperature=temperature,
-                                     voltage=voltage,
-                                     humidity=humidity,
-                                     )
+        user=user,
+        device_no=device_no,
+        time=time,
+        current=current,
+        temperature=temperature,
+        voltage=voltage,
+        humidity=humidity,
+    )
     dataToSave.save()
+
+
+def filter_data(request):
+    uid = request.COOKIES['uid']
+    deviceID = request.GET.get('z')
+    min_time = None
+    max_time = None
+    min_query = "SELECT id,MIN(time) FROM model_data WHERE user = '" + uid + "' AND device_no = '" + str(deviceID) + "'"
+    max_query = "SELECT id,time FROM model_data WHERE user = '" + uid + "' AND device_no = '" + str(deviceID) + "'"
+    for i in data.objects.raw(min_query):  # This query gives MIN time
+        min_time = i.time
+    for i in data.objects.raw(max_query):  # This query gives MAX time don't know how
+        max_time = i.time
+    print(min_time)
+    print(max_time)
+    min_date = str(min_time)[0:10]
+    max_date = str(max_time)[0:10]
+    return render(request, "filter_data.html", {'min': min_date, 'max': max_date})
